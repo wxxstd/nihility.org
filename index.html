@@ -4,40 +4,136 @@
         <title>Nihility</title>
         <link rel="icon" type="image/x-icon" href="assets/images (1) copy.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Nerko+One&display=swap" rel="stylesheet">
         <style>
             body {
                 background-color: rgb(0, 0, 0);
                 font-family: 'Nerko One';
-            }
-
-            .container {
-                height: 100vh;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                text-align: center;
             }
 
             .text {
                 color: white;
+                margin: 0px;
                 margin-bottom: 20px; /* Adjust spacing between text and icon */
-                font-size: large;
+                font-size: 40px;
+                vertical-align: middle;
+            }
+
+            .img {
+                float: left;
+                height: 700px;
+            }
+
+            .provider {
+                float: left;
+                margin: 10px;
+                min-width: 500px;
             }
 
             .disc {
-                height: 50px;
+                float: left;
+                height: 49px;
             }
+
+            .avatar {
+                display: inline-block;
+                height: 100px;
+                vertical-align: middle;
+            }
+
+            .recent-img {
+                display: inline;
+                height: 100px;
+                vertical-align: middle;
+            }
+
+            a {
+                text-decoration: none;
+                color: white;
+            }
+
+            .roles {
+                float: right;
+                font-size: 28px;
+                text-align: right;
+            }
+
+            .translation {
+                font-size: 20px;
+                max-width: 500px;
+                border-left: 4px solid white;
+                padding-left: 10px;
+            }
+
         </style>
     </head>
     <body>
         <div class="container">
-            <p class="text">Work in Progress!</p>
-            <a href="https://discord.gg/QgQ2yvteZZ" target="_blank">
-                <img class="disc" src="assets/003-discord copy.png" alt="Discord Icon">
-            </a>
+            <p class="text" style="text-align: center;">Welcome to Nihility</p>
+            <p class="text">The site is in Progress...</p>
+        </div>
+        <div class="container">
+            <div class="provider">
+                <p class="text">Meet the team:</p>
+                <p class="text">
+                    <img class="avatar" src="assets/asa.png">
+                    &nbsp;
+                    .asapgiri
+                    <span class="roles">
+                        translator<br>
+                        proofreader
+                    </span>
+                </p>
+                <p class="text">
+                    <img class="avatar" src="assets/wxxstd.png">
+                    &nbsp;
+                    wxxstd
+                    <span class="roles">
+                        editor<br>
+                        typesetter
+                    </span>
+                </p>
+                <p class="text">
+                    <img class="avatar" src="assets/rd.szili.png">
+                    &nbsp;
+                    rd.szili
+                    <span class="roles">
+                        translator<br>
+                        proofreader
+                    </span>
+                </p>
+
+                <p class="text">Recent works:</p>
+                <p class="text translation">
+                    <a href="https://nhentai.net/g/530496/" target="_blank">
+                            (Kami no Eichi 8) [Kadutikiya (Kaduki)] Renai Shoshinsha Rokusen-nen | To the inexperienced 6000 year old you (Genshin Impact) [English] [Nihility]
+                    </a>
+                </p>
+
+                <p class="text">
+                    <a href="https://discord.gg/QgQ2yvteZZ" target="_blank">
+                        <img class="disc" src="assets/003-discord copy.png" alt="Discord Icon">
+                        &nbsp;
+                        Join us on discord
+                    </a>
+                </p>
+                <p class="text">
+                    <a href="https://www.instagram.com/arb1_fanarts/" target="_blank">
+                        <img class="disc" src="assets/insta.png">
+                        &nbsp;
+                        Find more fanarts
+                    </a>
+                </p>
+            </div>
+
+            <div class="provider">
+                <img class="img" src="assets/arb1-nagatoro.png">
+            </div>
         </div>
     </body>
 </html>
