@@ -134,7 +134,20 @@ func WorkAdd(w http.ResponseWriter, r *http.Request) {
         Date:   time.Now(),
     }
 
-    if "" != tr.Title {
+    if "" != tr.Title || "" != tr.NhId {
+        if "" != tr.NhId {
+            inf := get_info(tr.NhId)
+
+            // TODO: Should I add more?
+            tr.Date = time.Unix(inf.UploadDate, 0)
+            if "" == tr.Title {
+                tr.Title = inf.Title.English
+            }
+            if "" == tr.From {
+                tr.From = inf.Title.Japanese
+            }
+        }
+
         tr.Id = primitive.NewObjectID()
         tr.Add()
         http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -147,29 +160,97 @@ func WorkAdd(w http.ResponseWriter, r *http.Request) {
 }
 
 func WorkEdit(w http.ResponseWriter, r *http.Request) {
-    session := GetCurrentSession(w, r)
+	session := GetCurrentSession(w, r)
 
-	if "" == session.Auth.Username {
-        http.Redirect(w, r, "/", http.StatusSeeOther)
+	if session.Auth.Username == "" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-    tr := Translation{
-        From:   r.FormValue("form[from]"),
-        Title:  r.FormValue("form[title]"),
-        NhId:   r.FormValue("form[nhid]"),
-        EhId:   r.FormValue("form[ehid]"),
-        Date:   time.Now(),
-    }
+	id := r.PathValue("id")
 
-    if "" != tr.Title {
-        tr.Id = primitive.NewObjectID()
-        tr.Add()
-        http.Redirect(w, r, "/", http.StatusSeeOther)
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
+	}
+
+	tr := Translation{
+		Id: objID,
+	}
+
+	// GET existing data
+	if r.Method == http.MethodGet {
+		err := tr.Select(objID)
+		if err != nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+        tr.sync_info()
+
+		fil, _ := renderer.ReadArtifact("workedit.html", w.Header())
+		renderer.Render(session, w, fil, tr)
+		return
+	}
+
+	// POST update
+	if r.Method == http.MethodPost {
+
+		err := tr.Select(objID)
+		if err != nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		tr.From = r.FormValue("form[from]")
+		tr.Title = r.FormValue("form[title]")
+		tr.Banner = r.FormValue("form[banner]")
+		tr.NhId = r.FormValue("form[nhid]")
+		tr.EhId = r.FormValue("form[ehid]")
+
+		date, err := time.Parse(
+			"2006-01-02T15:04",
+			r.FormValue("form[date]"),
+		)
+
+		if err == nil {
+			tr.Date = date
+		}
+
+		tr.Update()
+
+		http.Redirect(w, r, "/works", http.StatusSeeOther)
+		return
+	}
+}
+
+func WorkDelete(w http.ResponseWriter, r *http.Request) {
+	session := GetCurrentSession(w, r)
+
+	if session.Auth.Username == "" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	id := r.PathValue("id")
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	tr := Translation{
+		Id: objID,
+	}
+
+    err = tr.Select(objID)
+    if err != nil {
+        http.Error(w, "not found", http.StatusNotFound)
+        return
     }
 
-
-    fil, _ := renderer.ReadArtifact("workadd.html", w.Header())
-    renderer.Render(session, w, fil, nil)
+    tr.Delete()
+	http.Redirect(w, r, "/works", http.StatusSeeOther)
 }

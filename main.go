@@ -140,14 +140,18 @@ func get_info(id string) NhentaiGallery {
     return gallery
 }
 
+func (tr *Translation) sync_info() {
+    inf := get_info(tr.NhId)
+    tr.NhLikes = inf.NumFavorites
+    tr.Banner = inf.Cover.Path
+}
+
 func collect_translations() []Translation {
     var tr Translation
     translations, _ := tr.List()
 
-    for i, tr := range translations {
-        inf := get_info(tr.NhId)
-        translations[i].NhLikes = inf.NumFavorites
-        translations[i].Banner = inf.Cover.Path
+    for i, _ := range translations {
+        translations[i].sync_info()
     }
 
     sort.Slice(translations, func(i, j int) bool {
@@ -193,9 +197,9 @@ func main() {
     http.HandleFunc("GET /works",               Works)
     http.HandleFunc("GET /works/add",           WorkAdd)
     http.HandleFunc("POST /works/add",          WorkAdd)
-    // http.HandleFunc("GET /add",                 Add)
-    // http.HandleFunc("POST /add",                Add)
-    // http.HandleFunc("GET /update",              Add)
+    http.HandleFunc("GET /works/edit/{id}",     WorkEdit)
+    http.HandleFunc("POST /works/edit/{id}",    WorkEdit)
+    http.HandleFunc("GET /works/delete/{id}",   WorkDelete)
     // http.HandleFunc("GET /delete",              Add)
 
     args := os.Args[1:]

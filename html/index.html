@@ -65,9 +65,9 @@
 
                     <p class="text mb-0 translation-text">
                         <a href="https://nhentai.net/g/{{.NhId}}/" target="_blank">
-                            {{.From}}
-                            <br>
                             {{.Title}}
+                            <br>
+                            <span class="text-muted">{{.From}}</span>
                         </a>
                         <br>
 
@@ -85,7 +85,7 @@
                         </a>
 
                         <br/>
-                        <span class="date">{{.Date}}</span>
+                        <span class="date">{{.Date.Format "2006-01-02 15:04:05"}}</span>
                     </p>
                 </div>
                 {{end}}

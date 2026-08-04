@@ -1,0 +1,106 @@
+<div class="border-bottom px-3 py-2">
+    <h4 class="m-0">Edit Translation</h4>
+</div>
+
+<div class="border-bottom p-3 d-flex">
+
+    <img
+        src="https://t4.nhentai.net/{{.Dto.Banner}}"
+        class="me-3"
+        style="width:80px;height:110px;object-fit:cover;">
+
+    <div>
+        <div class="fw-bold">
+            {{.Dto.Title}}
+        </div>
+
+        <div class="text-muted small">
+            {{.Dto.From}}
+        </div>
+
+        <div class="mt-2">
+            🤍 {{.Dto.NhLikes}}
+        </div>
+    </div>
+
+</div>
+
+<form method="post">
+
+    <div class="border-bottom p-3">
+        <label class="form-label fw-bold">Source</label>
+        <input
+            type="text"
+            name="form[from]"
+            value="{{.Dto.From}}"
+            class="form-control rounded-0">
+    </div>
+
+
+    <div class="border-bottom p-3">
+        <label class="form-label fw-bold">Title</label>
+        <input
+            type="text"
+            name="form[title]"
+            value="{{.Dto.Title}}"
+            class="form-control rounded-0">
+    </div>
+
+
+    <div class="row g-0 border-bottom">
+
+        <div class="col-md-6 p-3 border-end">
+            <label class="form-label fw-bold">NH ID</label>
+            <input
+                type="text"
+                name="form[nhid]"
+                value="{{.Dto.NhId}}"
+                class="form-control rounded-0">
+        </div>
+
+
+        <div class="col-md-6 p-3">
+            <label class="form-label fw-bold">EH ID</label>
+            <input
+                type="text"
+                name="form[ehid]"
+                value="{{.Dto.EhId}}"
+                class="form-control rounded-0">
+        </div>
+
+    </div>
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Date
+        </label>
+
+        <input
+            type="datetime-local"
+            name="form[date]"
+            value="{{.Dto.Date.Format "2006-01-02T15:04"}}"
+            class="form-control rounded-0">
+
+    </div>
+
+
+    <div class="p-3 d-flex justify-content-between">
+
+        <a 
+            href="/works"
+            class="btn btn-secondary rounded-0">
+            Cancel
+        </a>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary rounded-0">
+            Save
+        </button>
+
+    </div>
+
+</form>
