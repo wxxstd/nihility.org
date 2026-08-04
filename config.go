@@ -19,6 +19,7 @@ type DbConfig struct {
 type Nh struct {
     API         string
     SyncMinutes int
+    Enabled     bool
 }
 
 type ConfigT struct {
@@ -30,7 +31,7 @@ type ConfigT struct {
 var Config = ConfigT{
     Http: HttpConfig{
         Url:    "",
-        Port:   "3001",
+        Port:   "3002",
     },
     Dbase: DbConfig{
         Url:    "mongodb://localhost:27017",
@@ -39,6 +40,7 @@ var Config = ConfigT{
     Nh: Nh{
         API: "",
         SyncMinutes: 1,
+        Enabled: false,
     },
 }
 

@@ -148,10 +148,12 @@ func get_info(id string) NhentaiGallery {
 }
 
 func (tr *Translation) sync_info() {
-    if "" != tr.NhId {
+    if Config.Nh.Enabled && "" != tr.NhId {
         inf := get_info(tr.NhId)
         tr.NhLikes = inf.NumFavorites
-        tr.Banner = inf.Cover.Path
+        if "" == tr.Banner {
+            tr.Banner = inf.Cover.Path
+        }
     }
 }
 
