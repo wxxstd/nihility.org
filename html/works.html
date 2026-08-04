@@ -36,14 +36,12 @@
                 <td class="align-middle">
                     <img 
                         src="https://t4.nhentai.net/{{.Banner}}"
-                        style="width:50px;height:70px;object-fit:cover;"
+                        style="width:80px;object-fit:cover;"
                     >
                 </td>
 
                 <td class="align-middle">
-                    <a href="/works/{{.Id}}" class="text-decoration-none">
-                        <b>{{.Title}}</b>
-                    </a>
+                    <b>{{.Title}}</b>
                     <br>
                     <small class="text-muted">
                         {{.From}}
@@ -80,7 +78,7 @@
                     {{.Date.Format "2006-01-02 15:04:05"}}
                 </td>
 
-                <td class="align-middle text-end">
+                <td class="align-middle text-end" style="width: 140px;">
 
                     <a 
                         class="btn btn-secondary rounded-0 py-0"

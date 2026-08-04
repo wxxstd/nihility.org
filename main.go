@@ -21,9 +21,9 @@ var log = logger.Logger {
 }
 
 type RegisterSha struct {
-    Id              primitive.ObjectID `bson:"_id"`
-	Sha             string
-	ValidUntil      time.Time
+    Id      primitive.ObjectID `bson:"_id"`
+	Sha     string
+    Staff   Staff
 }
 
 type Setting struct {
@@ -40,6 +40,7 @@ type Role struct {
 
 type Staff struct {
     Id      primitive.ObjectID `bson:"_id"`
+    IsUser  bool
     Avatar  string
     Nick    string
     Discord string
@@ -161,6 +162,41 @@ func collect_translations() []Translation {
     return translations
 }
 
+func get_site_settings() settings {
+    result := settings{}
+    stt := Setting{}
+
+    // Get all settings from DB
+    list, err := stt.List()
+    if err != nil {
+        return result
+    }
+
+    for _, stt := range list {
+        switch stt.Name {
+        case "title":
+            result.Title = stt.Value
+        case "discord":
+            result.Discord = stt.Value
+        case "banner":
+            result.Banner = stt.Value
+        case "intro":
+            result.Intro = stt.Value
+        }
+
+    }
+
+    return result
+}
+
+func update_setting(name, value string) {
+    var s Setting
+    s.FindByName(name)
+    s.Name = name
+    s.Value = value
+    s.Update()
+}
+
 func Root(w http.ResponseWriter, r *http.Request) {
     session := GetCurrentSession(w, r)
 
@@ -171,6 +207,7 @@ func Root(w http.ResponseWriter, r *http.Request) {
         dto_tr := dto{
             Staff: staff_list,
             Translations: collect_translations(),
+            Settings: get_site_settings(),
         }
 
         fil, _ := renderer.ReadArtifact("index.html", w.Header())
@@ -200,7 +237,11 @@ func main() {
     http.HandleFunc("GET /works/edit/{id}",     WorkEdit)
     http.HandleFunc("POST /works/edit/{id}",    WorkEdit)
     http.HandleFunc("GET /works/delete/{id}",   WorkDelete)
-    // http.HandleFunc("GET /delete",              Add)
+
+    http.HandleFunc("GET /staff",               StaffList)
+    http.HandleFunc("GET /staff/invite/{id}",   StaffInvite)
+    http.HandleFunc("GET /staff/site",          StaffSite)
+    http.HandleFunc("POST /staff/site",         StaffSite)
 
     args := os.Args[1:]
     if 0 < len(args) {

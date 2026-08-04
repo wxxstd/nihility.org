@@ -16,6 +16,7 @@ var dbSTAFF         *mongo.Collection
 var dbREGISTER_SHA  *mongo.Collection
 var dbTRANSLATIONS  *mongo.Collection
 var dbROLES         *mongo.Collection
+var dbSETTINGS      *mongo.Collection
 
 func dbConnect() {
     var err error
@@ -41,6 +42,7 @@ func dbConnect() {
 	dbREGISTER_SHA =    db.Collection("register_sha")
     dbTRANSLATIONS =    db.Collection("translations")
     dbROLES =           db.Collection("roles")
+    dbSETTINGS =        db.Collection("settings")
 }
 
 // =====================================================================================================================
@@ -81,6 +83,48 @@ func (staff *Staff) Update() error {
 func (staff *Staff) Delete() error {
     filter := bson.D{{"_id", staff.Id}}
     _, err := dbSTAFF.DeleteOne(context.Background(), filter)
+    return err
+}
+
+// =====================================================================================================================
+// Internal Setting Listing CRUD
+
+func (setting *Setting) List() ([]Setting, error) {
+    var staffList []Setting
+
+    cursor, err := dbSETTINGS.Find(context.Background(), bson.D{{}})
+    if nil != err {
+        return staffList, err
+    }
+    defer cursor.Close(context.Background())
+
+    err = cursor.All(context.Background(), &staffList)
+
+    return staffList, err
+}
+
+func (setting *Setting) Select(id primitive.ObjectID) error {
+    return dbSETTINGS.FindOne(context.Background(), bson.D{{"_id", id}}).Decode(setting)
+}
+
+func (setting *Setting) FindByName(name string) error {
+    return dbSETTINGS.FindOne(context.Background(), bson.D{{"name", name}}).Decode(setting)
+}
+
+func (setting *Setting) Update() error {
+    var err error
+    if setting.Id.IsZero() {
+        setting.Id = primitive.NewObjectID()
+        _, err = dbSETTINGS.InsertOne(context.Background(), setting)
+    } else {
+        _, err = dbSETTINGS.ReplaceOne(context.Background(), bson.D{{"_id", setting.Id}}, setting)
+    }
+    return err
+}
+
+func (setting *Setting) Delete() error {
+    filter := bson.D{{"_id", setting.Id}}
+    _, err := dbSETTINGS.DeleteOne(context.Background(), filter)
     return err
 }
 

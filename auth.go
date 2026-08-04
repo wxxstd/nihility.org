@@ -28,13 +28,16 @@ func Authenticate(a *session.Auth) {
 func (user *Staff) Register(password_clear_a string, password_clear_b string) error {
     old_user := Staff{}
 
-    if old_user.FindByName(user.Nick) == nil {
-        return errors.New("Nick already exists!")
+    if user.Id.IsZero() {
+        if old_user.FindByName(user.Nick) == nil {
+            return errors.New("Nick already exists!")
+        }
+
+        if len(user.Nick) < 3 {
+            return errors.New("Username must be a minimum of 3 characters long!")
+        }
     }
 
-    if len(user.Nick) < 3 {
-        return errors.New("Username must be a minimum of 3 characters long!")
-    }
     if len(password_clear_a) < 5 {
         return errors.New("Password must be a minimum of 5 characters long!")
     }
@@ -44,10 +47,15 @@ func (user *Staff) Register(password_clear_a string, password_clear_b string) er
     }
 
     pwh, _ := bcrypt.GenerateFromPassword([]byte(password_clear_a), 0)
-    user.Id = primitive.NewObjectID()
+    user.IsUser = true
     user.Passwd = string(pwh)
 
-    user.Add()
+    if user.Id.IsZero() {
+        user.Id = primitive.NewObjectID()
+        user.Add()
+    } else {
+        user.Update()
+    }
 
     return nil
 }

@@ -1,12 +1,12 @@
 <div class="container-lg">
     <div class="row">
         <div class="col-lg-6">
-            <p class="text d-flex justify-content-center">Welcome to Nihility</p>
+            <p class="text d-flex justify-content-center">{{.Dto.Settings.Title}}</p>
         </div>
 
         <div class="col-lg-6">
             <p class="text d-flex justify-content-center">
-                <a href="https://discord.gg/pvynKdsd8v" target="_blank">
+                <a href="{{.Dto.Settings.Discord}}" target="_blank">
                     <img class="disc" src="003-discord copy.png" alt="Discord Icon">
                     &nbsp;
                     Join us on discord
@@ -18,7 +18,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="banner">
-                <img class="banner-img" src="kyaru-moan.png">
+                <img class="banner-img" src="{{.Dto.Settings.Banner}}">
             </div>
         </div>
     </div>
@@ -27,14 +27,7 @@
         <div class="col-lg-12">
             <p class="text">Introduction:</p>
             <p class="text intro">
-                <b>Why hello there!</b>
-                We are a small team, who enjoys the act of giving, and the cause of joy and happyness.
-                We mainly started translating out of curiosity, and the urge to learn the japanese language.
-                And what is better, than some <b>hard</b>, hands on experience, while you can also
-                cause a little happyness!
-                Hope you are all enjoying our works, and hey!? Hit us up on discord if you have any questions,
-                suggestions, or just want to hang out.<br>
-                Welp, <b>HAPPY NEW YEAR EVERYONE!!?!</b> May the next year also contain the best wankings of our lives!
+                {{.Dto.Settings.Intro}}
             </p>
         </div>
     </div>

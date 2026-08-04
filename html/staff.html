@@ -1,0 +1,102 @@
+<div class="border-bottom px-3 py-2 d-flex justify-content-between">
+
+    <h4 class="m-0">
+        Staff
+    </h4>
+
+    <a
+        href="/staff/add"
+        class="btn btn-success rounded-0 py-0">
+        Add
+    </a>
+
+</div>
+
+
+<div class="table-responsive">
+
+    <table class="table table-hover mb-0">
+
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Discord</th>
+                <th>Roles</th>
+                <th>Email</th>
+                <th></th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+            {{range .Dto}}
+
+            <tr class="{{if .IsUser}}border-success{{else}}border-warning{{end}}">
+
+                <td>
+                    <img
+                            src="{{.Avatar}}"
+                            style="width:50px;height:50px;object-fit:cover;">
+                </td>
+
+
+                <td>
+                    <b>{{.Nick}}</b>
+                    <br>
+                    <span class="text-muted small">
+                        {{.Email}}
+                    </span>
+                </td>
+
+
+                <td>
+                    {{.Discord}}
+                </td>
+
+
+                <td>
+                    {{.Email}}
+                </td>
+
+
+                <td>
+
+                    {{range .Roles}}
+
+                    <span
+                          class="badge rounded-0"
+                          style="background:{{.Color}}">
+                        {{.Name}}
+                    </span>
+
+                    {{end}}
+
+                </td>
+
+
+                <td class="text-end">
+
+                    <a href="/staff/edit/{{.Id.Hex}}" class="btn btn-secondary rounded-0 py-0">
+                        Edit
+                    </a>
+
+
+                    <a href="/staff/invite/{{.Id.Hex}}" class="btn btn-primary rounded-0 py-0 {{if .IsUser}}disabled{{end}}">
+                        Invite
+                    </a>
+
+
+                </td>
+
+
+            </tr>
+
+            {{end}}
+
+        </tbody>
+
+    </table>
+
+</div>

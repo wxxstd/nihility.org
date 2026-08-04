@@ -1,0 +1,84 @@
+<div class="border-bottom px-3 py-2">
+    <h4 class="m-0">Site Settings</h4>
+</div>
+
+
+<form method="post">
+
+
+    <div class="border-bottom p-3">
+        <label class="form-label fw-bold">
+            Title
+        </label>
+
+        <input
+            type="text"
+            name="form[title]"
+            value="{{.Dto.Title}}"
+            class="form-control rounded-0">
+    </div>
+
+
+
+    <div class="border-bottom p-3">
+        <label class="form-label fw-bold">
+            Discord
+        </label>
+
+        <input
+            type="text"
+            name="form[discord]"
+            value="{{.Dto.Discord}}"
+            class="form-control rounded-0">
+    </div>
+
+
+
+    <div class="border-bottom p-3">
+        <label class="form-label fw-bold">
+            Banner
+        </label>
+
+        <input
+            type="text"
+            name="form[banner]"
+            value="{{.Dto.Banner}}"
+            class="form-control rounded-0">
+    </div>
+
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Introduction
+        </label>
+
+        <textarea
+            name="form[intro]"
+            rows="8"
+            class="form-control rounded-0">{{.Dto.Intro}}</textarea>
+
+    </div>
+
+
+
+    <div class="p-3 d-flex justify-content-between">
+
+        <a 
+            href="/"
+            class="btn btn-secondary rounded-0">
+            Cancel
+        </a>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary rounded-0">
+            Save
+        </button>
+
+    </div>
+
+
+</form>

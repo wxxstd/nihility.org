@@ -78,7 +78,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
         user := Staff{
             Nick: uuname,
         }
-        err := user.Register(upassa, upassb)
+
+        oid, err := primitive.ObjectIDFromHex(sha.Sha)
+        if nil == err {
+            user.Select(oid)
+        }
+
+        err = user.Register(upassa, upassb)
         if nil != err {
             session.SetError(err.Error())
         } else {
@@ -92,7 +98,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
     if "" == session.Auth.Username {
         fil, _ := renderer.ReadArtifact("register.html", w.Header())
-        renderer.Render(session, w, fil, nil)
+        renderer.Render(session, w, fil, sha)
     } else {
         http.Redirect(w, r, "/", http.StatusSeeOther)
     }
@@ -253,4 +259,73 @@ func WorkDelete(w http.ResponseWriter, r *http.Request) {
 
     tr.Delete()
 	http.Redirect(w, r, "/works", http.StatusSeeOther)
+}
+
+func StaffList(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+	if "" == session.Auth.Username {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+    var staff Staff
+    list, _ := staff.List()
+
+    fil, _ := renderer.ReadArtifact("staff.html", w.Header())
+    renderer.Render(session, w, fil, list)
+}
+
+func StaffInvite(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+	if "" == session.Auth.Username {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	id := r.PathValue("id")
+
+	sha := RegisterSha{}
+	sha.Find(id)
+	if "" == sha.Sha {
+        sha.Id = primitive.NewObjectID()
+        sha.Sha = id
+
+        var staff Staff
+	    objID, err := primitive.ObjectIDFromHex(id)
+        if nil == err && nil == staff.Select(objID) {
+            sha.Staff = staff
+        }
+
+        sha.Add()
+	}
+
+    fil, _ := renderer.ReadArtifact("invite.html", w.Header())
+    renderer.Render(session, w, fil, sha)
+}
+
+func StaffSite(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+	if "" == session.Auth.Username {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+    if r.Method == http.MethodPost {
+
+        update_setting("title", r.FormValue("form[title]"))
+        update_setting("discord", r.FormValue("form[discord]"))
+        update_setting("banner", r.FormValue("form[banner]"))
+        update_setting("intro", r.FormValue("form[intro]"))
+
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    site := get_site_settings()
+
+    fil, _ := renderer.ReadArtifact("site.html", w.Header())
+    renderer.Render(session, w, fil, site)
 }

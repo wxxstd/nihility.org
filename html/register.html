@@ -20,7 +20,11 @@
                     name="form[userUsername]"
                     required
                     placeholder="Username"
-                    class="form-control rounded-0">
+                    class="form-control rounded-0"
+                    {{if .Dto.Staff.Nick}}
+                    value="{{.Dto.Staff.Nick}}"
+                    {{end}}
+                    >
         </div>
 
         <div class="border-bottom p-3">
