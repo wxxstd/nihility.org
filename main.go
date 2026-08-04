@@ -23,7 +23,7 @@ var log = logger.Logger {
 type RegisterSha struct {
     Id      primitive.ObjectID `bson:"_id"`
 	Sha     string
-    Staff   Staff
+    Staff   primitive.ObjectID
 }
 
 type Setting struct {
@@ -261,7 +261,7 @@ func main() {
     http.HandleFunc("POST /roles/add",          RolesAdd)
     http.HandleFunc("GET /roles/edit/{id}",     RolesEdit)
     http.HandleFunc("POST /roles/edit/{id}",    RolesEdit)
-    http.HandleFunc("GET /roles/delete/{id}",   RolesDelete)
+    http.HandleFunc("GET /roles/delete/{id}",   StaffDelete)
 
     args := os.Args[1:]
     if 0 < len(args) {

@@ -50,6 +50,24 @@
                     <span>
                         🤍 {{.NhLikes}}
                     </span>
+                    {{if .Staff}}
+                    <br/>
+                    <span class="staff">
+                        {{range .Staff}}
+                        {{.Nick}}
+                        <span class="me-2 text-muted">
+                            {{if .Role}}
+                            (
+                            {{range $i, $role := .Role}}
+                            {{if $i}}, {{end}}
+                            <span style="color: {{$role.Color}}">{{$role.Name}}</span>
+                            {{end}}
+                            )
+                            {{end}}
+                        </span>
+                        {{end}}
+                    </span>
+                    {{end}}
                 </td>
 
                 <td class="align-middle">

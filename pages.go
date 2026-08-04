@@ -82,12 +82,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
             Nick: uuname,
         }
 
-        oid, err := primitive.ObjectIDFromHex(sha.Sha)
-        if nil == err {
-            user.Select(oid)
+        if !sha.Staff.IsZero() {
+            user.Select(sha.Staff)
         }
 
-        err = user.Register(upassa, upassb)
+        err := user.Register(upassa, upassb)
         if nil != err {
             session.SetError(err.Error())
         } else {
@@ -342,7 +341,7 @@ func StaffInvite(w http.ResponseWriter, r *http.Request) {
         var staff Staff
 	    objID, err := primitive.ObjectIDFromHex(id)
         if nil == err && nil == staff.Select(objID) {
-            sha.Staff = staff
+            sha.Staff = staff.Id
         }
 
         sha.Add()
