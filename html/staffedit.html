@@ -1,0 +1,148 @@
+<div class="border-bottom px-3 py-2">
+    <h4 class="m-0">Edit Staff</h4>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Nickname
+        </label>
+
+        <input
+            type="text"
+            name="form[nick]"
+            value="{{.Dto.Staff.Nick}}"
+            class="form-control rounded-0"
+            required>
+
+    </div>
+
+
+    <div class="row g-0 border-bottom">
+
+        <div class="col-md-6 p-3 border-end">
+
+            <label class="form-label fw-bold">
+                Discord
+            </label>
+
+            <input
+                type="text"
+                name="form[discord]"
+                value="{{.Dto.Staff.Discord}}"
+                class="form-control rounded-0">
+
+        </div>
+
+
+        <div class="col-md-6 p-3">
+
+            <label class="form-label fw-bold">
+                Email
+            </label>
+
+            <input
+                type="email"
+                name="form[email]"
+                value="{{.Dto.Staff.Email}}"
+                class="form-control rounded-0">
+
+        </div>
+
+    </div>
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Current Avatar
+        </label>
+
+        <div class="mb-3">
+            <img
+                src="{{.Dto.Staff.Avatar}}"
+                style="width:96px;height:96px;object-fit:cover;">
+        </div>
+
+        <label class="form-label">
+            Select Existing Avatar
+        </label>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            {{range $i, $img := .Dto.Artifacts}}
+
+            <input
+                class="btn-check"
+                type="radio"
+                name="form[avatar]"
+                id="avatar{{$i}}"
+                value="{{$img}}"
+                autocomplete="off"
+                {{if eq $img $.Dto.Staff.Avatar}}checked{{end}}>
+
+            <label
+                class="btn btn-outline-secondary rounded-0 p-1"
+                for="avatar{{$i}}">
+
+                <img
+                    src="{{$img}}"
+                    style="width:80px;height:80px;object-fit:cover;">
+
+            </label>
+
+            {{end}}
+
+        </div>
+
+    </div>
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Or Upload New Avatar
+        </label>
+
+        <input
+            type="file"
+            name="avatar"
+            accept="image/*"
+            class="form-control rounded-0">
+
+        <div class="form-text">
+            Uploading a file replaces the selected avatar.
+        </div>
+
+    </div>
+
+
+    <div class="p-3 d-flex justify-content-between">
+
+        <a
+            href="/staff"
+            class="btn btn-secondary rounded-0">
+            Cancel
+        </a>
+
+        <div>
+
+            <a
+                href="/staff/delete/{{.Dto.Staff.Id.Hex}}"
+                class="btn btn-danger rounded-0">
+                Delete
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-primary rounded-0">
+                Save
+            </button>
+
+        </div>
+
+    </div>
+
+</form>

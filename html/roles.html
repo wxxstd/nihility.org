@@ -1,0 +1,63 @@
+<div class="border-bottom px-3 py-2 d-flex justify-content-between align-items-center">
+    <h4 class="m-0">Roles</h4>
+
+    <a
+        href="/roles/add"
+        class="btn btn-success rounded-0 py-0">
+        Add
+    </a>
+</div>
+
+<table class="table table-hover align-middle mb-0">
+
+    <thead>
+        <tr>
+            <th style="width:64px;"></th>
+            <th>Name</th>
+            <th>Color</th>
+            <th>Description</th>
+            <th style="width:120px;"></th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {{range .Dto}}
+
+        <tr>
+
+            <td>
+                <div
+                    style="
+                        width:32px;
+                        height:32px;
+                        background:{{.Color}};
+                    ">
+                </div>
+            </td>
+
+            <td>{{.Name}}</td>
+
+            <td>
+                <code>{{.Color}}</code>
+            </td>
+
+            <td>{{.Desc}}</td>
+
+            <td class="text-end">
+
+                <a
+                    href="/roles/edit/{{.Id.Hex}}"
+                    class="btn btn-secondary rounded-0 py-0">
+                    Edit
+                </a>
+
+            </td>
+
+        </tr>
+
+    {{end}}
+
+    </tbody>
+
+</table>

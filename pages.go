@@ -198,8 +198,32 @@ func WorkEdit(w http.ResponseWriter, r *http.Request) {
 
         tr.sync_info()
 
+        selected := make(map[string]bool)
+        for _, s := range tr.Staff {
+            selected[s.Nick] = true
+            for _, rol := range s.Role {
+                selected[s.Nick+rol.Id.Hex()] = true
+            }
+        }
+
+        var staff Staff
+        var role Role
+
+        type dto_tr struct {
+            Translation Translation
+            Staff       []Staff
+            Roles       []Role
+            Selected    map[string]bool
+        }
+        dto := dto_tr{
+            Translation: tr,
+            Selected: selected,
+        }
+        dto.Staff, _ = staff.List()
+        dto.Roles, _ = role.List()
+
 		fil, _ := renderer.ReadArtifact("workedit.html", w.Header())
-		renderer.Render(session, w, fil, tr)
+		renderer.Render(session, w, fil, dto)
 		return
 	}
 
@@ -217,6 +241,26 @@ func WorkEdit(w http.ResponseWriter, r *http.Request) {
 		tr.Banner = r.FormValue("form[banner]")
 		tr.NhId = r.FormValue("form[nhid]")
 		tr.EhId = r.FormValue("form[ehid]")
+
+        var role Role
+        roles, _ := role.List()
+        form_staff := r.Form["form[staff]"]
+        tr.Staff = make([]TrStaff, len(form_staff))
+        for i, nick := range form_staff {
+            tr.Staff[i] = TrStaff{
+                Nick: nick,
+                Role: []Role{},
+            }
+            form_roles := r.Form["form[roles]["+nick+"]"]
+            for _, frl := range form_roles {
+                for _, rl := range roles {
+                    if frl == rl.Id.Hex() {
+                        tr.Staff[i].Role = append(tr.Staff[i].Role, rl)
+                    }
+                }
+            }
+        }
+
 
 		date, err := time.Parse(
 			"2006-01-02T15:04",
@@ -324,6 +368,28 @@ func get_artifact_images() []string {
     return result
 }
 
+func save_file_form(r *http.Request, from string) string {
+    file, header, err := r.FormFile(from)
+
+    if err == nil {
+        defer file.Close()
+
+        ext := filepath.Ext(header.Filename)
+        filename := primitive.NewObjectID().Hex() + ext
+        path := "artifacts/" + filename
+
+        dst, err := os.Create(path)
+        if err == nil {
+            defer dst.Close()
+            io.Copy(dst, file)
+
+            return "/" + filename
+        }
+    }
+
+    return ""
+}
+
 func StaffSite(w http.ResponseWriter, r *http.Request) {
     session := GetCurrentSession(w, r)
 
@@ -334,28 +400,7 @@ func StaffSite(w http.ResponseWriter, r *http.Request) {
 
     if r.Method == http.MethodPost {
 
-        bannerPath := ""
-
-        file, header, err := r.FormFile("banner")
-        if err == nil {
-            defer file.Close()
-
-            ext := filepath.Ext(header.Filename)
-
-            filename := primitive.NewObjectID().Hex() + ext
-
-            path := "artifacts/" + filename
-
-            dst, err := os.Create(path)
-            if err == nil {
-                defer dst.Close()
-
-                io.Copy(dst, file)
-
-                bannerPath = "/" + filename
-            }
-        }
-
+        bannerPath := save_file_form(r, "banner")
 
         update_setting("title", r.FormValue("form[title]"))
         update_setting("discord", r.FormValue("form[discord]"))
@@ -383,4 +428,170 @@ func StaffSite(w http.ResponseWriter, r *http.Request) {
 
     fil, _ := renderer.ReadArtifact("site.html", w.Header())
     renderer.Render(session, w, fil, dto)
+}
+
+func StaffAdd(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+	if "" == session.Auth.Username {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+    if r.Method == http.MethodPost {
+
+        avatarPath := save_file_form(r, "avatar")
+
+        var avatar string
+        if "" != avatarPath {
+            avatar = avatarPath
+        } else {
+            avatar = r.FormValue("form[avatar]")
+        }
+
+        staff := Staff{
+            Avatar:  avatar,
+            Nick:    r.FormValue("form[nick]"),
+            Discord: r.FormValue("form[discord]"),
+            Email:   r.FormValue("form[email]"),
+        }
+        staff.Id = primitive.NewObjectID()
+        staff.Add()
+
+        http.Redirect(w, r, "/staff", http.StatusSeeOther)
+        return
+    }
+
+    type dto_sa struct {
+        Artifacts   []string
+    }
+    dto := dto_sa{
+        Artifacts: get_artifact_images(),
+    }
+
+    fil, _ := renderer.ReadArtifact("staffadd.html", w.Header())
+    renderer.Render(session, w, fil, dto)
+}
+
+func StaffEdit(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+	if "" == session.Auth.Username {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+    oid, _ := primitive.ObjectIDFromHex(r.PathValue("id"))
+    staff := Staff{}
+    staff.Select(oid)
+
+    if r.Method == http.MethodPost {
+
+        avatarPath := save_file_form(r, "avatar")
+
+        var avatar string
+        if "" != avatarPath {
+            avatar = avatarPath
+        } else {
+            avatar = r.FormValue("form[avatar]")
+        }
+
+        staff.Avatar =  avatar
+        staff.Nick =    r.FormValue("form[nick]")
+        staff.Discord = r.FormValue("form[discord]")
+        staff.Email =   r.FormValue("form[email]")
+        staff.Update()
+
+        http.Redirect(w, r, "/staff", http.StatusSeeOther)
+        return
+    }
+
+    type dto_sa struct {
+        Artifacts   []string
+        Staff       Staff
+    }
+    dto := dto_sa{
+        Artifacts: get_artifact_images(),
+        Staff: staff,
+    }
+
+    fil, _ := renderer.ReadArtifact("staffedit.html", w.Header())
+    renderer.Render(session, w, fil, dto)
+}
+
+func Roles(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+    if session.Auth.Username == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    var role Role
+    roles, _ := role.List()
+
+    fil, _ := renderer.ReadArtifact("roles.html", w.Header())
+    renderer.Render(session, w, fil, roles)
+}
+
+func RolesAdd(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+    if session.Auth.Username == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    if r.Method == http.MethodPost {
+        role := Role{
+            Id:    primitive.NewObjectID(),
+            Name:  r.FormValue("form[name]"),
+            Color: r.FormValue("form[color]"),
+            Desc:  r.FormValue("form[desc]"),
+        }
+
+        if role.Name != "" {
+            role.Add()
+        }
+
+        http.Redirect(w, r, "/roles", http.StatusSeeOther)
+        return
+    }
+
+    fil, _ := renderer.ReadArtifact("rolesedit.html", w.Header())
+    renderer.Render(session, w, fil, Role{})
+}
+
+func RolesEdit(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+    if session.Auth.Username == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+    if err != nil {
+        http.Redirect(w, r, "/roles", http.StatusSeeOther)
+        return
+    }
+
+    var role Role
+    if role.Select(id) != nil {
+        http.Redirect(w, r, "/roles", http.StatusSeeOther)
+        return
+    }
+
+    if r.Method == http.MethodPost {
+        role.Name = r.FormValue("form[name]")
+        role.Color = r.FormValue("form[color]")
+        role.Desc = r.FormValue("form[desc]")
+        role.Update()
+
+        http.Redirect(w, r, "/roles", http.StatusSeeOther)
+        return
+    }
+
+    fil, _ := renderer.ReadArtifact("rolesedit.html", w.Header())
+    renderer.Render(session, w, fil, role)
 }

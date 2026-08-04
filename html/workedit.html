@@ -5,21 +5,21 @@
 <div class="border-bottom p-3 d-flex">
 
     <img
-        src="https://t4.nhentai.net/{{.Dto.Banner}}"
+        src="https://t4.nhentai.net/{{.Dto.Translation.Banner}}"
         class="me-3"
         style="width:80px;height:110px;object-fit:cover;">
 
     <div>
         <div class="fw-bold">
-            {{.Dto.Title}}
+            {{.Dto.Translation.Title}}
         </div>
 
         <div class="text-muted small">
-            {{.Dto.From}}
+            {{.Dto.Translation.From}}
         </div>
 
         <div class="mt-2">
-            🤍 {{.Dto.NhLikes}}
+            🤍 {{.Dto.Translation.NhLikes}}
         </div>
     </div>
 
@@ -32,7 +32,7 @@
         <input
             type="text"
             name="form[from]"
-            value="{{.Dto.From}}"
+            value="{{.Dto.Translation.From}}"
             class="form-control rounded-0">
     </div>
 
@@ -42,7 +42,7 @@
         <input
             type="text"
             name="form[title]"
-            value="{{.Dto.Title}}"
+            value="{{.Dto.Translation.Title}}"
             class="form-control rounded-0">
     </div>
 
@@ -54,7 +54,7 @@
             <input
                 type="text"
                 name="form[nhid]"
-                value="{{.Dto.NhId}}"
+                value="{{.Dto.Translation.NhId}}"
                 class="form-control rounded-0">
         </div>
 
@@ -64,9 +64,70 @@
             <input
                 type="text"
                 name="form[ehid]"
-                value="{{.Dto.EhId}}"
+                value="{{.Dto.Translation.EhId}}"
                 class="form-control rounded-0">
         </div>
+
+    </div>
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold mb-3">
+            Staff
+        </label>
+
+        <table class="table table-sm align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th style="width:220px;">Member</th>
+                    <th>Roles</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {{range .Dto.Staff}}
+
+                <tr>
+
+                    <td>
+
+                        <div class="form-check">
+                            <input class="btn-check" type="checkbox" name="form[staff]" value="{{.Nick}}" id="staff{{.Id.Hex}}" {{if index $.Dto.Selected .Nick}}checked{{end}}>
+                            <label class="btn btn-outline-secondary rounded-0 py-0 fw-bold" for="staff{{.Id.Hex}}">
+                                {{.Nick}}
+                            </label>
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        <div class="d-flex flex-wrap gap-1">
+
+                            {{$staff := .}}
+                            {{range $.Dto.Roles}}
+                            <input class="btn-check" type="checkbox" autocomplete="off" name="form[roles][{{$staff.Nick}}]" id="staff{{$staff.Id.Hex}}role{{.Id.Hex}}" value="{{.Id.Hex}}" {{if index $.Dto.Selected (printf "%s%s" $staff.Nick .Id.Hex)}}checked{{end}}>
+                            <label class="btn btn-outline-secondary rounded-0 py-0" for="staff{{$staff.Id.Hex}}role{{.Id.Hex}}">
+                                {{.Name}}
+                            </label>
+                            {{end}}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {{end}}
+
+            </tbody>
+
+        </table>
 
     </div>
 
@@ -80,7 +141,7 @@
         <input
             type="datetime-local"
             name="form[date]"
-            value="{{.Dto.Date.Format "2006-01-02T15:04"}}"
+            value="{{.Dto.Translation.Date.Format "2006-01-02T15:04"}}"
             class="form-control rounded-0">
 
     </div>

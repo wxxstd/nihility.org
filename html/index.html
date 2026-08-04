@@ -33,52 +33,73 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-4">
             <p class="text">Meet the team:</p>
             {{range .Dto.Staff}}
             <p class="text editor">
                 <img class="avatar" src="{{.Avatar}}">
                 &nbsp;
                 {{.Nick}}
-                <span class="roles">
-                    {{range .Roles}}
-                    {{.}}<br>
-                    {{end}}
-                </span>
             </p>
             {{end}}
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <p class="text">Recent works: {{if .Auth.Username}}<a class="btn btn-secondary py-0 rounded-0" role="button" href="/works/add">add</a>{{end}}</p>
             <div id="translations">
                 {{range .Dto.Translations}}
                 <div class="d-flex align-items-start mb-2 translation ">
-                    <img src="https://t4.nhentai.net/{{.Banner}}" class="translation-icon me-2" style="width: 128px;"/>
+                    <img src="https://t4.nhentai.net/{{.Banner}}" class="translation-icon me-2" style="width: 200px;"/>
 
-                    <p class="text mb-0 translation-text">
-                        <a href="https://nhentai.net/g/{{.NhId}}/" target="_blank">
+                    <p class="text m-0 translation-text">
+                        <a {{if .NhId}}href="https://nhentai.net/g/{{.NhId}}/"{{end}} target="_blank">
                             {{.Title}}
                             <br>
                             <span class="text-muted">{{.From}}</span>
                         </a>
                         <br>
 
+                        {{if .NhId}}
                         <a href="https://nhentai.net/g/{{.NhId}}/" target="_blank">
                             <img src="https://nhentai.net/favicon.png" alt="nhentai.net" class="favicon">
                             nhentai
                             <span id="{{.NhId}}"></span>
-                            <span class="likes">🤍 {{.NhLikes}}</span>
                         </a>
+                        {{end}}
 
+                        {{if .EhId}}
                         <br/>
                         <a href="https://e-hentai.org/g/{{.EhId}}/" target="_blank">
                             <img src="https://e-hentai.org/favicon.ico" alt="e-hentai.org" class="favicon">
                             e-hentai
                         </a>
+                        {{end}}
 
                         <br/>
                         <span class="date">{{.Date.Format "2006-01-02 15:04:05"}}</span>
+                        <br/>
+                        <span class="likes">🤍 {{.NhLikes}}</span>
+
+                        {{if .Staff}}
+                        <br/>
+                        <span class="staff">
+                            {{range .Staff}}
+                            {{.Nick}}
+                            <span class="me-2 text-muted">
+                                {{if .Role}}
+                                (
+                                {{range $i, $role := .Role}}
+                                    {{if $i}}, {{end}}
+                                    <span style="color: {{$role.Color}}">{{$role.Name}}</span>
+                                {{end}}
+                                )
+                                {{end}}
+                            </span>
+                            {{end}}
+                        </span>
+                        {{end}}
+
+
                     </p>
                 </div>
                 {{end}}

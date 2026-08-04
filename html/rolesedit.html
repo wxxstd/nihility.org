@@ -1,0 +1,90 @@
+<div class="border-bottom px-3 py-2">
+    <h4 class="m-0">
+        {{if .Dto.Id.IsZero}}Add Role{{else}}Edit Role{{end}}
+    </h4>
+</div>
+
+<form method="post">
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Name
+        </label>
+
+        <input
+            type="text"
+            name="form[name]"
+            value="{{.Dto.Name}}"
+            class="form-control rounded-0"
+            required>
+
+    </div>
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Color
+        </label>
+
+        <div class="input-group">
+
+            <input
+                type="color"
+                name="form[color]"
+                value="{{.Dto.Color}}"
+                class="form-control form-control-color rounded-0">
+
+            <input
+                type="text"
+                name="form[color_text]"
+                value="{{.Dto.Color}}"
+                class="form-control rounded-0">
+
+        </div>
+
+    </div>
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Description
+        </label>
+
+        <input
+            type="text"
+            name="form[desc]"
+            value="{{.Dto.Desc}}"
+            class="form-control rounded-0">
+
+    </div>
+
+    <div class="p-3 d-flex justify-content-between">
+
+        <a
+            href="/roles"
+            class="btn btn-secondary rounded-0">
+            Cancel
+        </a>
+
+        <div>
+
+            {{if not .Dto.Id.IsZero}}
+            <a
+                href="/roles/delete/{{.Dto.Id.Hex}}"
+                class="btn btn-danger rounded-0">
+                Delete
+            </a>
+            {{end}}
+
+            <button
+                type="submit"
+                class="btn btn-primary rounded-0">
+                Save
+            </button>
+
+        </div>
+
+    </div>
+
+</form>

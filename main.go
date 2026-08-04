@@ -36,6 +36,7 @@ type Role struct {
     Id      primitive.ObjectID `bson:"_id"`
     Name    string
     Color   string
+    Desc    string
 }
 
 type Staff struct {
@@ -46,7 +47,12 @@ type Staff struct {
     Discord string
     Email   string
     Passwd  string
-    Roles   []Role
+    Hide    bool
+}
+
+type TrStaff struct {
+    Nick    string
+    Role    []Role
 }
 
 type Translation struct {
@@ -58,7 +64,7 @@ type Translation struct {
     NhLikes int
     EhId    string
     Date    time.Time
-    Staff   []Staff
+    Staff   []TrStaff
 }
 
 type settings struct {
@@ -142,9 +148,11 @@ func get_info(id string) NhentaiGallery {
 }
 
 func (tr *Translation) sync_info() {
-    inf := get_info(tr.NhId)
-    tr.NhLikes = inf.NumFavorites
-    tr.Banner = inf.Cover.Path
+    if "" != tr.NhId {
+        inf := get_info(tr.NhId)
+        tr.NhLikes = inf.NumFavorites
+        tr.Banner = inf.Cover.Path
+    }
 }
 
 func collect_translations() []Translation {
@@ -242,6 +250,16 @@ func main() {
     http.HandleFunc("GET /staff/invite/{id}",   StaffInvite)
     http.HandleFunc("GET /staff/site",          StaffSite)
     http.HandleFunc("POST /staff/site",         StaffSite)
+    http.HandleFunc("GET /staff/add",           StaffAdd)
+    http.HandleFunc("POST /staff/add",          StaffAdd)
+    http.HandleFunc("GET /staff/edit/{id}",     StaffEdit)
+    http.HandleFunc("POST /staff/edit/{id}",    StaffEdit)
+
+    http.HandleFunc("GET /roles",               Roles)
+    http.HandleFunc("GET /roles/add",           RolesAdd)
+    http.HandleFunc("POST /roles/add",          RolesAdd)
+    http.HandleFunc("GET /roles/edit/{id}",     RolesEdit)
+    http.HandleFunc("POST /roles/edit/{id}",    RolesEdit)
 
     args := os.Args[1:]
     if 0 < len(args) {
