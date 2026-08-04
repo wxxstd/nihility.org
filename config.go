@@ -1,9 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"os"
-	"path/filepath"
+    "encoding/json"
+    "os"
+    "path/filepath"
 )
 
 type HttpConfig struct {
@@ -11,14 +11,34 @@ type HttpConfig struct {
     Port    string
 }
 
+type DbConfig struct {
+    Url     string
+    Name    string
+}
+
+type Nh struct {
+    API         string
+    SyncMinutes int
+}
+
 type ConfigT struct {
     Http        HttpConfig
+    Dbase       DbConfig
+    Nh          Nh
 }
 
 var Config = ConfigT{
     Http: HttpConfig{
         Url:    "",
         Port:   "3001",
+    },
+    Dbase: DbConfig{
+        Url:    "mongodb://localhost:27017",
+        Name:   "nihility",
+    },
+    Nh: Nh{
+        API: "",
+        SyncMinutes: 1,
     },
 }
 

@@ -1,123 +1,202 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
+	"time"
 
-	//"github.com/niuhuan/nhentai-go"
+	"github.com/asapgiri/golib/logger"
+	"github.com/asapgiri/golib/renderer"
+	"github.com/asapgiri/golib/session"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type translation struct {
-	From	string
-	Title	string
-	NhId	int
-	NhLikes int
-	EhId	string
-	Date	string
+var log = logger.Logger {
+    Color: logger.Colors.Purple,
+    Pretext: "nihility",
 }
 
-type staff struct {
-	Avatar	string
-	Nick	string
-	Roles	[]string
+type RegisterSha struct {
+    Id              primitive.ObjectID `bson:"_id"`
+	Sha             string
+	ValidUntil      time.Time
+}
+
+type Setting struct {
+    Id      primitive.ObjectID `bson:"_id"`
+    Name    string
+    Value   string
+}
+
+type Role struct {
+    Id      primitive.ObjectID `bson:"_id"`
+    Name    string
+    Color   string
+}
+
+type Staff struct {
+    Id      primitive.ObjectID `bson:"_id"`
+    Avatar  string
+    Nick    string
+    Discord string
+    Email   string
+    Passwd  string
+    Roles   []Role
+}
+
+type Translation struct {
+    Id      primitive.ObjectID `bson:"_id"`
+    From    string
+    Title   string
+    Banner  string
+    NhId    string
+    NhLikes int
+    EhId    string
+    Date    time.Time
+    Staff   []Staff
+}
+
+type settings struct {
+    Title   string
+    Discord string
+    Intro   string
+    Banner  string
 }
 
 type dto struct {
-	Staff			[]staff
-	Translations	[]translation
+    Settings        settings
+    Staff           []Staff
+    Translations    []Translation
 }
 
-var translations = []translation {
-	{
-		From: "[Chirimen Naoyuki (Naoyuki)] (Princess Connect! Re:Dive)",
-		Title: "Kyaru-chan is wild in the mating season!?",
-		NhId: 546037,
-		EhId: "3171969/245a553fd3",
-		Date: "2024-12-24",
-	},
-	{
-		From: "[Kadutikiya (Kaduki)] (Genshin Impact)",
-		Title: "To the inexperienced 6000 year old you",
-		NhId: 530496,
-		EhId: "3059227/88342cd22b",
-		Date: "2024-09-15",
-	},
-};
+type NhentaiGallery struct {
+	ID           int    `json:"id"`
+	MediaID      string `json:"media_id"`
+	UploadDate   int64  `json:"upload_date"`
+	NumPages     int    `json:"num_pages"`
+	NumFavorites int    `json:"num_favorites"`
 
-var vstaff = []staff {
-	{
-		Nick: ".asapgiri",
-		Avatar: "asa.png",
-		Roles: []string{"translator", "proofreader"},
-	},
-	{
-		Nick: "vv4ste",
-		Avatar: "wxxstd.png",
-		Roles: []string{"editor", "typesetter"},
-	},
-	{
-		Nick: "rd.szili",
-		Avatar: "rd.szili.png",
-		Roles: []string{"translator", "proofreader"},
-	},
+	Title struct {
+		English  string `json:"english"`
+		Japanese string `json:"japanese"`
+		Pretty   string `json:"pretty"`
+	} `json:"title"`
+
+	Cover struct {
+		Path string `json:"path"`
+	} `json:"cover"`
+
+	Tags []struct {
+		Type string `json:"type"`
+		Name string `json:"name"`
+	} `json:"tags"`
 }
 
-
-
-func Unexpected(w http.ResponseWriter, r *http.Request) {
-    fil, typ := read_artifact(r.URL.Path, w.Header())
+func Unexpected(sess session.Sessioner, w http.ResponseWriter, r *http.Request) {
+    fil, typ := renderer.ReadArtifact(r.URL.Path, w.Header())
 
     if "text" == typ {
-        Render(w, fil, nil)
+        renderer.Render(sess, w, fil, nil)
     } else {
         io.WriteString(w, fil)
     }
 }
 
-func collect_translations() []translation {
-	// var client = nhentai.Client{}
-	//
-	// client.Transport = &http.Transport{
-	// 	TLSHandshakeTimeout:   time.Second * 10,
-	// 	ExpectContinueTimeout: time.Second * 10,
-	// 	ResponseHeaderTimeout: time.Second * 10,
-	// 	IdleConnTimeout:       time.Second * 10,
-	// }
+type info struct {
+    LastUpdate  time.Time
+    Value       NhentaiGallery
+}
+var info_cache = make(map[string]info)
 
-	for i := 0; i < len(translations); i++ {
-		// info, err := client.ComicInfo(translations[i].NhId)
-		// fmt.Println(info)
-		// fmt.Println(err)
-		translations[i].NhLikes = 4000 //info.NumFavorites
-	}
+func get_info(id string) NhentaiGallery {
+    var gallery NhentaiGallery
 
-	return translations
+    val, ok := info_cache[id]
+    if ok && val.LastUpdate.Sub(time.Now()).Minutes() < float64(Config.Nh.SyncMinutes) {
+        return val.Value
+    }
+
+    resp, err := http.Get("https://nhentai.net/api/v2/galleries/"+id)
+    if err != nil {
+        log.Println(err)
+        return gallery
+    }
+    defer resp.Body.Close()
+
+    err = json.NewDecoder(resp.Body).Decode(&gallery)
+    if err != nil {
+        log.Println(err)
+    }
+
+    info_cache[id] = info{
+        LastUpdate: time.Now(),
+        Value: gallery,
+    }
+
+    return gallery
+}
+
+func collect_translations() []Translation {
+    var tr Translation
+    translations, _ := tr.List()
+
+    for i, tr := range translations {
+        inf := get_info(tr.NhId)
+        translations[i].NhLikes = inf.NumFavorites
+        translations[i].Banner = inf.Cover.Path
+    }
+
+    sort.Slice(translations, func(i, j int) bool {
+        return translations[i].Date.After(translations[j].Date)
+    })
+
+    return translations
 }
 
 func Root(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
     if "/" == r.URL.Path {
-		// TODO: Read nh stuff...
+        var staff Staff
+        staff_list, _ := staff.List()
 
-		dto_tr := dto{
-			Staff: vstaff,
-			Translations: collect_translations(),
-		}
+        dto_tr := dto{
+            Staff: staff_list,
+            Translations: collect_translations(),
+        }
 
-        fil, _ := read_artifact("index.html", w.Header())
-        Render(w, fil, dto_tr)
+        fil, _ := renderer.ReadArtifact("index.html", w.Header())
+        renderer.Render(session, w, fil, dto_tr)
     } else {
-        Unexpected(w, r)
+        Unexpected(session, w, r)
     }
 }
 
 func main() {
+    dbConnect()
     InitConfig()
 
     http.HandleFunc("GET /",                    Root)
     http.HandleFunc("GET /index",               Root)
     http.HandleFunc("GET /index.html",          Root)
+
+    http.HandleFunc("GET /login",               Login)
+    http.HandleFunc("POST /login",              Login)
+    http.HandleFunc("GET /register/{sha}",      Register)
+    http.HandleFunc("POST /register/{sha}",     Register)
+    http.HandleFunc("GET /logout",              Logout)
+
+    http.HandleFunc("GET /works",               Works)
+    http.HandleFunc("GET /works/add",           WorkAdd)
+    http.HandleFunc("POST /works/add",          WorkAdd)
+    // http.HandleFunc("GET /add",                 Add)
+    // http.HandleFunc("POST /add",                Add)
+    // http.HandleFunc("GET /update",              Add)
+    // http.HandleFunc("GET /delete",              Add)
 
     args := os.Args[1:]
     if 0 < len(args) {

@@ -1,0 +1,72 @@
+<div class="container-lg pt-5 w-100" style="max-width: 1000px;">
+
+    <div class="border-bottom px-3 py-2">
+        <h4 class="m-0">Add Translation</h4>
+    </div>
+
+    <form method="post">
+
+        <div class="border-bottom p-3">
+            <label class="form-label fw-bold">From</label>
+            <input
+                type="text"
+                name="form[from]"
+                class="form-control rounded-0"
+                placeholder="e.g. nHentai">
+        </div>
+
+        <div class="border-bottom p-3">
+            <label class="form-label fw-bold">Title</label>
+            <input
+                type="text"
+                name="form[title]"
+                class="form-control rounded-0"
+                placeholder="English title">
+        </div>
+
+        <div class="border-bottom p-3">
+            <label class="form-label fw-bold">Banner URL</label>
+            <input
+                type="text"
+                name="form[banner]"
+                class="form-control rounded-0"
+                placeholder="https://...">
+        </div>
+
+        <div class="row g-0 border-bottom">
+
+            <div class="col-md-6 p-3 border-end">
+                <label class="form-label fw-bold">nHentai ID</label>
+                <input
+                    type="text"
+                    name="form[nhid]"
+                    class="form-control rounded-0"
+                    placeholder="123456">
+            </div>
+
+            <div class="col-md-6 p-3">
+                <label class="form-label fw-bold">eHentai ID</label>
+                <input
+                    type="text"
+                    name="form[ehid]"
+                    class="form-control rounded-0"
+                    placeholder="abcdef">
+            </div>
+
+        </div>
+
+        <div class="p-3 d-flex justify-content-end gap-2">
+            <a href="/" class="btn btn-secondary rounded-0">
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-success rounded-0">
+                Save Translation
+            </button>
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,46 @@
+{{define "pagination"}}
+<div class="d-flex justify-content-between align-items-center">
+
+    <div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination m-0">
+                <!-- Previous button -->
+                <li class="page-item {{if eq .Current 0}}disabled{{end}}">
+                    <a class="page-link" href="?page=0&ppp={{.Ppp}}" tabindex="-1"><<</a>
+                </li>
+                <li class="page-item {{if eq .Current 0}}disabled{{end}}">
+                    <a class="page-link" href="?page={{dec .Current}}&ppp={{.Ppp}}" tabindex="-1"><</a>
+                </li>
+
+                <!-- Page number buttons -->
+                {{range $i := seq 0 .Count}}
+                <li class="page-item {{if eq $.Current $i}}active{{end}}">
+                    <a class="page-link" href="?page={{$i}}&ppp={{$.Ppp}}">{{inc $i}}</a>
+                </li>
+                {{ end }}
+
+                <!-- Next button -->
+                <li class="page-item {{if eq .Current (dec .Count)}}disabled{{end}}">
+                    <a class="page-link" href="?page={{inc .Current}}&ppp={{.Ppp}}">></a>
+                </li>
+                <li class="page-item {{if eq .Current (dec .Count)}}disabled{{end}}">
+                    <a class="page-link" href="?page={{dec .Count}}&ppp={{.Ppp}}">></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div>
+        <!-- Posts per page selector -->
+        <form method="get" id="pppForm">
+            <label for="pppSelect">Posts per page:</label>
+            <select name="ppp" id="pppSelect" class="form-select d-inline-block w-auto" onchange="document.getElementById('pppForm').submit()">
+                {{ range $i := .PppOpts }}
+                <option value="{{ $i }}" {{ if eq $.Ppp $i }}selected{{ end }}>{{ $i }}</option>
+                {{ end }}
+            </select>
+        </form>
+    </div>
+
+</div>
+{{end}}
