@@ -104,39 +104,6 @@
     </div>
 
 
-    <div class="border-bottom p-3">
-
-        <label class="form-label fw-bold">
-            Roles
-        </label>
-
-        <div class="d-flex flex-wrap gap-2">
-
-            {{range .Dto.Roles}}
-
-            <input
-                class="btn-check"
-                type="checkbox"
-                name="form[roles]"
-                value="{{.Id.Hex}}"
-                id="role{{.Id.Hex}}">
-
-            <label
-                class="btn rounded-0"
-                style="background: {{.Color}}"
-                for="role{{.Id.Hex}}">
-
-                {{.Name}}
-
-            </label>
-
-            {{end}}
-
-        </div>
-
-    </div>
-
-
     <div class="p-3 d-flex justify-content-between">
 
         <a
