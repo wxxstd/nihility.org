@@ -519,6 +519,22 @@ func StaffEdit(w http.ResponseWriter, r *http.Request) {
     renderer.Render(session, w, fil, dto)
 }
 
+func StaffDelete(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+    if session.Auth.Username == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    oid, _ := primitive.ObjectIDFromHex(r.PathValue("id"))
+    staff := Staff{}
+    staff.Select(oid)
+    staff.Delete()
+
+    http.Redirect(w, r, "/staff", http.StatusSeeOther)
+}
+
 func Roles(w http.ResponseWriter, r *http.Request) {
     session := GetCurrentSession(w, r)
 
@@ -595,3 +611,26 @@ func RolesEdit(w http.ResponseWriter, r *http.Request) {
     fil, _ := renderer.ReadArtifact("rolesedit.html", w.Header())
     renderer.Render(session, w, fil, role)
 }
+
+func RolesDelete(w http.ResponseWriter, r *http.Request) {
+    session := GetCurrentSession(w, r)
+
+    if session.Auth.Username == "" {
+        http.Redirect(w, r, "/", http.StatusSeeOther)
+        return
+    }
+
+    id, err := primitive.ObjectIDFromHex(r.PathValue("id"))
+    if err != nil {
+        http.Redirect(w, r, "/roles", http.StatusSeeOther)
+        return
+    }
+
+    var role Role
+    if role.Select(id) == nil {
+        role.Delete()
+    }
+
+    http.Redirect(w, r, "/roles", http.StatusSeeOther)
+}
+

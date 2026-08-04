@@ -254,12 +254,14 @@ func main() {
     http.HandleFunc("POST /staff/add",          StaffAdd)
     http.HandleFunc("GET /staff/edit/{id}",     StaffEdit)
     http.HandleFunc("POST /staff/edit/{id}",    StaffEdit)
+    http.HandleFunc("GET /staff/delete/{id}",   StaffDelete)
 
     http.HandleFunc("GET /roles",               Roles)
     http.HandleFunc("GET /roles/add",           RolesAdd)
     http.HandleFunc("POST /roles/add",          RolesAdd)
     http.HandleFunc("GET /roles/edit/{id}",     RolesEdit)
     http.HandleFunc("POST /roles/edit/{id}",    RolesEdit)
+    http.HandleFunc("GET /roles/delete/{id}",   RolesDelete)
 
     args := os.Args[1:]
     if 0 < len(args) {
