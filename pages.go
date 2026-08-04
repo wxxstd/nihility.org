@@ -1,7 +1,10 @@
 package main
 
 import (
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/asapgiri/golib/renderer"
@@ -305,6 +308,22 @@ func StaffInvite(w http.ResponseWriter, r *http.Request) {
     renderer.Render(session, w, fil, sha)
 }
 
+func get_artifact_images() []string {
+    files, _ := os.ReadDir("artifacts")
+
+    result := []string{}
+
+    for _, file := range files {
+        if file.IsDir() {
+            continue
+        }
+
+        result = append(result, "/"+file.Name())
+    }
+
+    return result
+}
+
 func StaffSite(w http.ResponseWriter, r *http.Request) {
     session := GetCurrentSession(w, r)
 
@@ -315,17 +334,53 @@ func StaffSite(w http.ResponseWriter, r *http.Request) {
 
     if r.Method == http.MethodPost {
 
+        bannerPath := ""
+
+        file, header, err := r.FormFile("banner")
+        if err == nil {
+            defer file.Close()
+
+            ext := filepath.Ext(header.Filename)
+
+            filename := primitive.NewObjectID().Hex() + ext
+
+            path := "artifacts/" + filename
+
+            dst, err := os.Create(path)
+            if err == nil {
+                defer dst.Close()
+
+                io.Copy(dst, file)
+
+                bannerPath = "/" + filename
+            }
+        }
+
+
         update_setting("title", r.FormValue("form[title]"))
         update_setting("discord", r.FormValue("form[discord]"))
-        update_setting("banner", r.FormValue("form[banner]"))
+
+        if bannerPath != "" {
+            update_setting("banner", bannerPath)
+        } else {
+            update_setting("banner", r.FormValue("form[banner]"))
+        }
+
         update_setting("intro", r.FormValue("form[intro]"))
 
         http.Redirect(w, r, "/", http.StatusSeeOther)
         return
     }
 
-    site := get_site_settings()
+    type dto_site struct {
+        Site        settings
+        Artifacts   []string
+    }
+    dto := dto_site{
+        Site: get_site_settings(),
+        Artifacts: get_artifact_images(),
+    }
 
     fil, _ := renderer.ReadArtifact("site.html", w.Header())
-    renderer.Render(session, w, fil, site)
+    renderer.Render(session, w, fil, dto)
 }

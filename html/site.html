@@ -3,8 +3,7 @@
 </div>
 
 
-<form method="post">
-
+<form method="post" enctype="multipart/form-data">
 
     <div class="border-bottom p-3">
         <label class="form-label fw-bold">
@@ -14,10 +13,9 @@
         <input
             type="text"
             name="form[title]"
-            value="{{.Dto.Title}}"
+            value="{{.Dto.Site.Title}}"
             class="form-control rounded-0">
     </div>
-
 
 
     <div class="border-bottom p-3">
@@ -28,24 +26,9 @@
         <input
             type="text"
             name="form[discord]"
-            value="{{.Dto.Discord}}"
+            value="{{.Dto.Site.Discord}}"
             class="form-control rounded-0">
     </div>
-
-
-
-    <div class="border-bottom p-3">
-        <label class="form-label fw-bold">
-            Banner
-        </label>
-
-        <input
-            type="text"
-            name="form[banner]"
-            value="{{.Dto.Banner}}"
-            class="form-control rounded-0">
-    </div>
-
 
 
     <div class="border-bottom p-3">
@@ -57,10 +40,73 @@
         <textarea
             name="form[intro]"
             rows="8"
-            class="form-control rounded-0">{{.Dto.Intro}}</textarea>
+            class="form-control rounded-0">{{.Dto.Site.Intro}}</textarea>
 
     </div>
 
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Banner
+        </label>
+
+
+        <div class="mb-3">
+            <img id="banner-show"
+             src="{{.Dto.Site.Banner}}"
+             class="img-fluid"
+             style="max-height:200px;">
+        </div>
+
+
+        <label class="form-label">
+            Or upload new image
+        </label>
+
+        <input
+                type="file"
+                name="banner"
+                accept="image/*"
+                class="form-control rounded-0">
+
+    </div>
+
+
+    <div class="border-bottom p-3">
+
+        <label class="form-label fw-bold">
+            Select Banner
+        </label>
+
+        <input type="hidden" id="banner" name="form[banner]" value="{{.Dto.Site.Banner}}">
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <script>
+                function selectBanner(path) {
+                    document.getElementById("banner").value = path;
+                    document.getElementById("banner-show").src = path;
+
+                    document.querySelectorAll(".banner-option").forEach(img => {
+                        img.classList.remove("border-primary", "border-3");
+                    });
+
+                    event.currentTarget.querySelector("img")
+                        .classList.add("border-primary", "border-3");
+                }
+            </script>
+
+            {{range .Dto.Artifacts}}
+            <button type="button" class="p-0 border-0 bg-transparent" onclick="selectBanner('{{.}}')">
+                <img src="{{.}}" class="banner-option border {{if eq . $.Dto.Site.Banner}}border-primary border-3{{end}}"
+                        style=" width:150px; height:80px; object-fit:cover; ">
+            </button>
+            {{end}}
+
+        </div>
+
+    </div>
 
 
     <div class="p-3 d-flex justify-content-between">
@@ -71,7 +117,6 @@
             Cancel
         </a>
 
-
         <button
             type="submit"
             class="btn btn-primary rounded-0">
@@ -79,6 +124,5 @@
         </button>
 
     </div>
-
 
 </form>
