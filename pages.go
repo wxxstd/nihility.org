@@ -77,15 +77,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
     upassa := r.FormValue("form[userPassA]")
     upassb := r.FormValue("form[userPassB]")
 
+    user := Staff{
+        Nick: uuname,
+    }
+
+    if !sha.Staff.IsZero() {
+        user.Select(sha.Staff)
+    }
+
     if "" != uuname {
-        user := Staff{
-            Nick: uuname,
-        }
-
-        if !sha.Staff.IsZero() {
-            user.Select(sha.Staff)
-        }
-
         err := user.Register(upassa, upassb)
         if nil != err {
             session.SetError(err.Error())
@@ -100,7 +100,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
     if "" == session.Auth.Username {
         fil, _ := renderer.ReadArtifact("register.html", w.Header())
-        renderer.Render(session, w, fil, sha)
+        renderer.Render(session, w, fil, user)
     } else {
         http.Redirect(w, r, "/", http.StatusSeeOther)
     }
@@ -332,23 +332,32 @@ func StaffInvite(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 
+    var staff Staff
 	sha := RegisterSha{}
 	sha.Find(id)
+
+    objID, _ := primitive.ObjectIDFromHex(id)
+    staff.Select(objID)
+
+
 	if "" == sha.Sha {
         sha.Id = primitive.NewObjectID()
         sha.Sha = id
-
-        var staff Staff
-	    objID, err := primitive.ObjectIDFromHex(id)
-        if nil == err && nil == staff.Select(objID) {
-            sha.Staff = staff.Id
-        }
-
+        sha.Staff = staff.Id
         sha.Add()
 	}
 
+    type dto_inv struct {
+        Sha     RegisterSha
+        Staff   Staff
+    }
+    dto := dto_inv{
+        Sha: sha,
+        Staff: staff,
+    }
+
     fil, _ := renderer.ReadArtifact("invite.html", w.Header())
-    renderer.Render(session, w, fil, sha)
+    renderer.Render(session, w, fil, dto)
 }
 
 func get_artifact_images() []string {

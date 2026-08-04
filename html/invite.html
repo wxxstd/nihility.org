@@ -8,7 +8,7 @@
     <div class="d-flex align-items-center mb-4">
 
         <img
-            src="/{{.Dto.Staff.Avatar}}"
+            src="{{.Dto.Staff.Avatar}}"
             class="me-3"
             style="width:80px;height:80px;object-fit:cover;">
 
@@ -20,20 +20,6 @@
 
             <div class="text-muted">
                 {{.Dto.Staff.Discord}}
-            </div>
-
-            <div class="mt-2">
-
-                {{range .Dto.Staff.Roles}}
-
-                <span
-                    class="badge rounded-0"
-                    style="background:{{.Color}}">
-                    {{.Name}}
-                </span>
-
-                {{end}}
-
             </div>
 
         </div>
@@ -51,13 +37,13 @@
             id="registerLink"
             type="text"
             readonly
-            value="{{.Dto.Sha}}"
+            value="{{.Dto.Sha.Sha}}"
             class="form-control rounded-0">
 
 
         <button
             class="btn btn-secondary rounded-0"
-            onclick="navigator.clipboard.writeText('nihility.org/register/{{.Dto.Sha}}')">
+            onclick="navigator.clipboard.writeText('nihility.org/register/{{.Dto.Sha.Sha}}')">
             Copy
         </button>
 
@@ -73,7 +59,7 @@
         <input
             type="text"
             readonly
-            value="/register/{{.Dto.Sha}}"
+            value="/register/{{.Dto.Sha.Sha}}"
             class="form-control rounded-0">
 
     </div>
